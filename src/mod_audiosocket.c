@@ -24,7 +24,7 @@
  *   audiosocket_max_queue_ms (10000), audiosocket_stall_timeout_ms (10000, 0 = never), audiosocket_dtmf (on),
  *   audiosocket_send_vars (none). Numbers outside their allowed range are refused with a warning.
  * audiosocket_send_vars names channel variables to send once, as JSON, in a metadata frame (kind 0x40, an
- * extension to the Asterisk protocol) right after the UUID frame.
+ * optional extension to the base protocol) right after the UUID frame.
  * Channel variables set when the application ends:
  *   audiosocket_status          ok, server_hangup, server_closed, server_stalled, connect_failed, bad_args, error
  *   audiosocket_frames_sent     audio frames sent to the server
@@ -370,7 +370,7 @@ static void emit_to_server(as_call_t *c, const uint8_t *payload, size_t plen)
 }
 
 /* Queue a key press for the server: a DTMF frame whose payload is the digit as one ASCII byte
- * (0 to 9, * # and A to D), as Asterisk's AudioSocket sends it. */
+ * (0 to 9, * # and A to D), as the AudioSocket protocol defines it. */
 static void send_dtmf(as_call_t *c, char digit)
 {
 	uint8_t frame[AS_HEADER_LEN + 1];

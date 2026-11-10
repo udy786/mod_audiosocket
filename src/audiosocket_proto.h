@@ -10,9 +10,8 @@
  *
  * Frame layout: 1 byte kind, 2 bytes payload length (big endian), payload.
  *
- * NOTE: the kind codes below follow the Asterisk AudioSocket protocol as we
- * understand it. They must be checked against Asterisk's documentation or
- * source for compatibility (phase 0 task) before a release.
+ * The kind codes below are the AudioSocket protocol's: hangup 0x00, UUID 0x01,
+ * DTMF 0x03, error 0xFF, and audio 0x10 to 0x18 for the nine sample rates.
  */
 #ifndef AUDIOSOCKET_PROTO_H
 #define AUDIOSOCKET_PROTO_H
@@ -42,7 +41,7 @@ enum {
 	AS_KIND_AUDIO_48K = 0x16,
 	AS_KIND_AUDIO_96K = 0x17,
 	AS_KIND_AUDIO_192K = 0x18,
-	/* Extension, not part of Asterisk's protocol: a JSON object of channel variables, sent once after the
+	/* Optional extension to the base protocol: a JSON object of channel variables, sent once after the
 	 * UUID frame, only when the dialplan asks for it (audiosocket_send_vars). */
 	AS_KIND_METADATA = 0x40,
 	AS_KIND_ERROR = 0xff
