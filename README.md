@@ -1,8 +1,8 @@
 # mod_audiosocket
 
-A FreeSWITCH module that sends a call's audio to a TCP server and plays the server's audio back to the caller, at the same time. It speaks the AudioSocket protocol that Asterisk uses, so a bot written for Asterisk's AudioSocket can talk to FreeSWITCH without Asterisk sitting in the middle.
+A FreeSWITCH module that sends a call's audio to a TCP server and plays the server's audio back to the caller, at the same time. It uses the simple AudioSocket framing protocol (described in section 4), so a bot or any other TCP service can listen to the caller and talk back.
 
-I wrote it because I wanted to drop an Asterisk hop from an outbound bot-calling setup (FreeSWITCH, then Asterisk, then the bot). It runs inside the call's own FreeSWITCH thread and does all its socket work without blocking, so it adds no threads of its own.
+The module runs inside the call's own FreeSWITCH thread and does all its socket work without blocking, so it adds no threads of its own.
 
 What it does:
 
@@ -20,7 +20,7 @@ Licence: MPL-2.0. Copyright (c) 2026 Uday Kumar.
 
 I built and tested it on FreeSWITCH 1.10.12 (compiled from source, Debian 13). I used loopback calls and real softphone calls (PCMU at 8 kHz and Opus at 48 kHz), and ran it under AddressSanitizer and UBSan against a deliberately badly behaved server. On a small 2-vCPU test machine it used about 1.8 ms of CPU and 0.5 MB of memory per stream.
 
-What I have not tried: other FreeSWITCH versions or Linux distros, Docker, a real Asterisk AudioSocket client or server (I only checked the protocol constants against Asterisk's header), and thousands of real RTP calls. Please test on your own setup before putting live traffic on it.
+What I have not tried: other FreeSWITCH versions or Linux distros, Docker, third-party AudioSocket clients and servers (I only tested against my own test servers), and thousands of real RTP calls. Please test on your own setup before putting live traffic on it.
 
 ## 1. Install
 
@@ -176,7 +176,7 @@ Plain TCP. Every message is a frame: one byte for the kind, two bytes for the pa
 | `0xFF` error | server to module | one byte; it is logged and otherwise ignored |
 | `0x40` metadata | module to server, right after the UUID | a JSON object with the variables named in `send-vars` |
 
-`0x40` is my own addition and is not part of Asterisk's protocol. It is only sent if you turn on `send-vars`, and a server that doesn't know the kind should just ignore it.
+`0x40` is an optional extension to the base protocol. It is only sent if you turn on `send-vars`, and a server that doesn't know the kind should just ignore it.
 
 Audio that the server sends faster than real time is queued and played in order. There is no way to cancel queued audio (no barge-in), so a bot that wants to interrupt itself should send its audio at real-time speed.
 
@@ -219,4 +219,4 @@ Audio that the server sends faster than real time is queued and played in order.
 
 ## Licence
 
-Mozilla Public License 2.0, see `LICENSE`. I wrote it from scratch; no code was copied from Asterisk or other modules.
+Mozilla Public License 2.0, see `LICENSE`. I wrote it from scratch; no code was copied from other projects.
